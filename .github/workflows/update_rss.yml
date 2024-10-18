@@ -1,0 +1,44 @@
+name: Update RSS Feed
+
+on:
+  schedule:
+    # Runs at 12 AM UTC every day (you can customize this)
+    - cron: '0 0 * * *'
+
+jobs:
+  update-rss:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Set up Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      # Install dependencies from requirements.txt
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      # Set up Google Service Account
+      - name: Set up Google Service Account
+        run: echo "${{ secrets.GOOGLE_SERVICE_ACCOUNT }}" > service_account.json
+
+      # Run the Python script to update RSS feed
+      - name: Run the script
+        run: |
+          python update_rss_feed.py
+
+      # Commit changes if the RSS feed gets updated
+      - name: Commit changes
+        run: |
+          git config --local user.email "you@example.com"
+          git config --local user.name "GitHub Actions"
+          git add rss.xml
+          git commit -m "Updated RSS feed" || echo "No changes to commit"
+          git push
