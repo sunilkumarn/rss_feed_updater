@@ -2,7 +2,7 @@ name: Update RSS Feed
 
 on:
   schedule:
-    # Runs at 12 AM UTC every day (you can customize this)
+    # Runs at 12 AM UTC every day
     - cron: '0 0 * * *'
 
 jobs:
@@ -14,25 +14,29 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # Set up Python environment
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.x'
+      # Install ffmpeg
+      - name: Install ffmpeg
+        run: sudo apt-get install ffmpeg
 
-      # Install dependencies from requirements.txt
+      # Set up Ruby environment
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.0' # Or specify the version you need
+
+      # Install dependencies from Gemfile
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
+          bundle install
 
       # Set up Google Service Account
       - name: Set up Google Service Account
         run: echo "${{ secrets.GOOGLE_SERVICE_ACCOUNT }}" > service_account.json
 
-      # Run the Python script to update RSS feed
+      # Run the Ruby script to update RSS feed
       - name: Run the script
         run: |
-          python update_rss_feed.py
+          ruby update_rss_feed.rb
 
       # Commit changes if the RSS feed gets updated
       - name: Commit changes
