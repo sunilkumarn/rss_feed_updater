@@ -36,7 +36,7 @@ jobs:
       # Run the Ruby script to update RSS feed
       - name: Run the script
         run: |
-          ruby update_rss_feed.rb
+          bundle exec ruby update_rss_feed.rb
 
       # Commit changes if the RSS feed gets updated
       - name: Commit changes
