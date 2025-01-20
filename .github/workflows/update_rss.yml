@@ -30,7 +30,7 @@ jobs:
       # Set up Google Service Account
       - name: Set up Google Service Account
         run: | 
-          echo "${{ secrets.GOOGLE_SERVICE_ACCOUNT }}" > service_account.json
+          echo "${{ secrets.GOOGLE_SERVICE_ACCOUNT }}" jq -c . > service_account.json
           cat service_account.json
 
       # Run the Ruby script to update RSS feed
