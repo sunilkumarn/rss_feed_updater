@@ -53,9 +53,10 @@ def get_audio_duration(url)
 end
 
 rows.each_with_index do |row, index|
+  spreadsheet_row_number = index + 2 # Add 2 to account for the header row and zero-based index
   next if row[7] == 'Yes' # Skip rows already marked as uploaded
 
-  puts "processing row #{row[0]}"
+  puts "Row data: #{row[0]}, Spreadsheet row number: #{spreadsheet_row_number}"
 
   # New item with CDATA tags
   item_node = Nokogiri::XML::Node.new 'item', rss_doc
@@ -94,6 +95,9 @@ rows.each_with_index do |row, index|
 
   itunes_duration_node = Nokogiri::XML::Node.new 'itunes:duration', rss_doc
   itunes_duration_node.content = get_audio_duration(row[5]) # Duration from calculated function
+
+  puts "Audion duration: #{itunes_duration_node.content}"
+
   item_node.add_child(itunes_duration_node)
 
   itunes_image_node = Nokogiri::XML::Node.new 'itunes:image', rss_doc
@@ -104,17 +108,21 @@ rows.each_with_index do |row, index|
   itunes_episode_type_node.content = "full"
   item_node.add_child(itunes_episode_type_node)
 
-  puts item_node.inspect
-
   # Insert the new item before the closing </channel> tag
   channel.add_child(item_node)
 
-  sheets_service.update_spreadsheet_value(
-    spreadsheet_id,
-    "H#{row[0].to_i}",
-    Google::Apis::SheetsV4::ValueRange.new(values: [['Yes']]),
-    value_input_option: 'RAW'
-  )
+  puts "H#{row[0].to_i}"
+
+  begin
+    sheets_service.update_spreadsheet_value(
+      spreadsheet_id,
+      "H#{spreadsheet_row_number}",
+      Google::Apis::SheetsV4::ValueRange.new(values: [['Yes']]),
+      value_input_option: 'RAW'
+    )
+  rescue => e
+    puts "Failed to update row #{row[0]}: #{e.message}"
+  end
   break
 end
 

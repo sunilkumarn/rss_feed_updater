@@ -41,7 +41,7 @@ jobs:
       # Commit changes if the RSS feed gets updated
       - name: Commit changes
         run: |
-          git config --local user.email "you@example.com"
+          git config --local user.email "sunilkumar.gec56@gmail.com"
           git config --local user.name "GitHub Actions"
           git add rss.xml
           git commit -m "Updated RSS feed" || echo "No changes to commit"
