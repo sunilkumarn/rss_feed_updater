@@ -3,6 +3,9 @@ name: Update RSS Feed
 on:
   workflow_dispatch: # Allows manual triggering of the workflow
 
+permissions:
+  contents: write  # Grant write access to repository contents
+
 jobs:
   update-rss:
     runs-on: ubuntu-latest
