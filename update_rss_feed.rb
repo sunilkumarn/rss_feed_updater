@@ -60,6 +60,7 @@ rows.each_with_index do |row, index|
 
   # New item with CDATA tags
   item_node = Nokogiri::XML::Node.new 'item', rss_doc
+  upload_date = Date.strptime(row[8], '%m-%d-%Y')
 
   title_node = Nokogiri::XML::Node.new 'title', rss_doc
   title_node.content = "<![CDATA[#{row[1]}]]>" # Title from 'Title of the source clip'
@@ -74,13 +75,17 @@ rows.each_with_index do |row, index|
   enclosure_node['type'] = 'audio/mpeg'
   item_node.add_child(enclosure_node)
 
+  unique_id = Digest::SHA256.hexdigest(row[1].gsub(/\s+/, "") + upload_date.to_s)
+  guid_node = Nokogiri::XML::Node.new 'guid', rss_doc
+  guid_node.content = unique_id
+  item_node.add_child(guid_node)
+
   creator_node = Nokogiri::XML::Node.new 'dc:creator', rss_doc
   creator_node.content = "Narayanashrama Tapovanam, An abode of Brahmavidya" # Constant creator value
   item_node.add_child(creator_node)
 
   pubDate_node = Nokogiri::XML::Node.new 'pubDate', rss_doc
 
-  upload_date = Date.strptime(row[8], '%m-%d-%Y')
   formatted_pub_date = upload_date.strftime('%a, %d %b %Y %H:%M:%S GMT')
   pubDate_node.content = formatted_pub_date # Upload date from 'Upload Date'
   item_node.add_child(pubDate_node)
