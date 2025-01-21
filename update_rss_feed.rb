@@ -12,6 +12,12 @@ require 'date'
 
 include REXML
 
+IMAGE_URLS = {
+  'ps' => 'https://sunilkumarn.github.io/rss_feed_updater/images/Psj.jpg',
+  'ns' => 'https://sunilkumarn.github.io/rss_feed_updater/images/Nsj.jpg',
+  'ma' => 'https://sunilkumarn.github.io/rss_feed_updater/images/Maa.jpg'
+}.freeze
+
 # Set up Google Sheets API
 SERVICE_ACCOUNT_FILE = 'service_account.json'
 SCOPE = ['https://www.googleapis.com/auth/spreadsheets', 
@@ -106,8 +112,18 @@ rows.each_with_index do |row, index|
   item_node.add_child(itunes_duration_node)
 
   itunes_image_node = Nokogiri::XML::Node.new 'itunes:image', rss_doc
-  itunes_image_node['href'] = ""
-  item_node.add_child(itunes_image_node)
+
+  column_value = row[2].to_s.strip.downcase
+  puts column_value
+
+  image_url = IMAGE_URLS[column_value]
+  if image_url
+    itunes_image_node = Nokogiri::XML::Node.new('itunes:image', rss_doc)
+    itunes_image_node['href'] = image_url
+    item_node.add_child(itunes_image_node)
+  else
+    puts "Warning: No matching image URL for value '#{row['Type']}'"
+  end
 
   itunes_episode_type_node = Nokogiri::XML::Node.new 'itunes:episodeType', rss_doc
   itunes_episode_type_node.content = "full"
